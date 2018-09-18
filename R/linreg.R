@@ -1,7 +1,7 @@
 #### linreg class
 
 linreg <- setRefClass("linreg",
-  fields = list(pValues = "numeric"),
+  fields = list(p_values = "numeric", residuals = "matrix", predicted_values = "matrix", coefficients = "matrix"),
   methods = list(
     initialize = function(formula, data) {
 
@@ -50,22 +50,26 @@ linreg <- setRefClass("linreg",
       # df number of freedoms
       # ncp non-centrality parameter delta; currently except for rt(), only for abs(ncp) <= 37.62. If omitted, use the central t distribution.
 
-      pValues <<- sapply(y, pt, q = ncol(X), df = df)
+      ## Saving
+      p_values <<- sapply(y, pt, q = ncol(X), df = df)
+      residuals <<- e_circ
+      predicted_values <<- y_circ
+      coefficients <<- beta
+
     },
     print     = function() {},
     plot      = function() {},
-    resid     = function() {},
-    pred      = function() {},
-    coef      = function() {},
-    summary   = function() {},
-    addPValue = function(value) {
-      pValues <<- c(pValues, value)
-    },
-    cPValues  = function () {
-      pValues <<- list()
-    }
+    resid     = function() { return(residuals) },
+    pred      = function() { return(predicted_values) },
+    coef      = function() { return(coefficients) },
+    summary   = function() {}
   )
 )
 
 linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-print(linreg_mod$pValues)
+print(linreg_mod$p_values)
+print(linreg_mod$resid)
+print(linreg_mod$predicted_values)
+print(linreg_mod$coefficients)
+
+
