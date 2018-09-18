@@ -50,7 +50,7 @@ linreg <- setRefClass("linreg",
       # df number of freedoms
       # ncp non-centrality parameter delta; currently except for rt(), only for abs(ncp) <= 37.62. If omitted, use the central t distribution.
 
-      pValues <<- sapply(X, pt, q = ncol(X), df = df)
+      pValues <<- sapply(y, pt, q = ncol(X), df = df)
     },
     print     = function() {},
     plot      = function() {},
