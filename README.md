@@ -1,7 +1,7 @@
 # Advanced Programming in R - Assignment 4
 To be continued...
 
-## ToDO
+## ToDo
 - ~~Code cleanup!~~
 - Make `summary()` and `print()` pass unit tests
   - They now use print(data.frame) for display, which is much nicer. Still they don't pass the unit tests.
