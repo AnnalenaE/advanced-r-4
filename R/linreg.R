@@ -65,6 +65,7 @@ linreg <- setRefClass("linreg",
                           ## Saving
                           formula <<- formula
                           p_values <<- sapply(y, pt, q = ncol(X), df = df)
+                          custom_t_beta = sapply(t_beta, pt, q = ncol(X), df = df)
                           residuals <<- e_circ
                           predicted_values <<- y_circ
                           coefficients <<- beta
@@ -124,7 +125,7 @@ linreg <- setRefClass("linreg",
                                              rownames(coefficients)[i],
                                              "\t", round(coefficients[i], 2),
                                              "\t", round(sqrt(g_var_beta[i, i]), 2),
-                                             "\n")
+                                             "\t",round(coefficients[i]/sqrt(g_var_beta[i, i]), 2), "\n")
                           }
                           cat(temp_out)
 
