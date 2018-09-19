@@ -1,151 +1,114 @@
 #### linreg class
 
 linreg <- setRefClass("linreg",
-                      fields = list(
-                        p_values = "numeric",
-                        residuals = "matrix",
-                        predicted_values = "matrix",
-                        coefficients = "matrix",
-                        formula = "formula",
-                        g_df = "numeric",
-                        g_sigma = "matrix",
-                        g_x = "matrix",
-                        g_var_beta = "matrix",
-                        data_set_name = "character",
-                        g_y = "matrix"),
+    fields = list(
+      l_X = "matrix",
+      l_y = "matrix",
+      l_beta = "matrix", # Coefficients
+      l_y_fitted_values = "matrix",
+      l_e = "matrix", # Residuals
+      l_n = "numeric",
+      l_p = "numeric",
+      l_df = "numeric", # Degrees of Freedom
+      l_sigma_s = "matrix",
+      l_var_beta = "matrix",
+      l_formula = "formula",
+      l_p_values = "numeric",
+      l_data_set_name = "character"),
+    methods = list(
+      # Constructor
+      initialize = function(formula, data) {
 
-                      methods = list(
-                        initialize = function(formula, data) {
+        # Input Validation
+        #if (!is.formula(formula)) stop("Error messgage")
+        #stopifnot(class(formula) == "formula", error = stop("formula is invalid."))
 
-                          # This contructor will be called like this
-                          #linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+        l_X <<- model.matrix(formula, data)
+        l_y <<- as.matrix(data[all.vars(formula)[1]])
 
-                          #if (!is.formula(formula)) stop("Error messgage")
-                          #stopifnot(class(formula) == "formula", error = stop("formula is invalid."))
+        # Calculate Regressions Coefficients
+        ## Remember he told something about that solve doesn't always works, depends on the eigenvalues.
+        l_beta <<- as.matrix((solve((t(l_X) %*% l_X)) %*% t(l_X) %*% l_y))
 
-                          X = model.matrix(formula, data) ## Create the X matrix with dummy variables. ~ necessary?
-                          #y = data[,names(data) == all.vars(formula)[1]] ## Get all dependent variables
-                          y = as.matrix(data[all.vars(formula)[1]])
-                          #y = data[which(names(data) == y)]
+        # The Fitted Values
+        l_y_fitted_values <<- l_X %*% l_beta
 
-                          # Calculate Regressions coefficients:
-                          beta = as.matrix((solve((t(X) %*% X)) %*% t(X) %*% y)) ## Remember he told something about that solve doesn't always works, depends on the eigenvalues
+        # The Residuals
+        l_e <<- l_y - l_y_fitted_values
 
-                          # Calculate The fitted values:
-                          y_circ = X %*% beta
+        # Calculate The degrees of freedom
+        # Where n is the number of observations and p is the number of parameters in the model.
+        l_n <<- nrow(l_X)
+        l_p <<- ncol(l_X)
 
-                          # Calculate The residuals:
-                          e_circ = as.matrix(y - y_circ)
+        # Degrees of Freedom
+        l_df <<- l_n - l_p
 
-                          # Calculate The degrees of freedom:
-                          # where n is the number of observations and p is the number of parameters in the model.
-                          n = nrow(X)
-                          p = ncol(X)
-                          df = n - p # We still need to get n and p, maybe it's just length(X) - length(y)
-                          #df = df.residual(y_circ)
+        # The Residual Variance
+        l_sigma_s <<- (t(l_e) %*% l_e) / l_df
 
-                          # Calculate The residual variance:
-                          sigma_squared = (t(as.matrix(e_circ)) %*% as.matrix(e_circ)) / df
+        # Variance of Regression Coefficients
+        l_var_beta <<- as.numeric(l_sigma_s) * solve(t(as.matrix(l_X)) %*% as.matrix(l_X))
 
-                          # Calculate The variance of the regression coefficients:
-                          var_beta = as.numeric(sigma_squared) * solve(t(as.matrix(X)) %*% as.matrix(X)) ## Why not use var(beta)?
+        # Calculate The t-values for each coefficient:
+        t_l_beta = l_beta / as.numeric(sqrt(var(l_beta)))
 
-                          # Calculate The t-values for each coefficient:
-                          t_beta = beta / as.numeric(sqrt(var(beta)))
+        ## Saving
+        l_formula <<- formula
+        l_data_set_name <<- deparse(substitute(data))
+        l_p_values <<- sapply(l_y, pt, q = ncol(l_X), df = l_df)
+      },
+      print = function() {
 
-                          # Use pt() function the calcualte the p values and then store them inside
-                          # of our object for each regression coefficient
-                          #pt()
+        # Formula
+        cat(paste("linreg(formula = ", format(formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
 
-                          #customObject = linreg$new()
-                          # x, q	vector of quantiles
-                          # df number of freedoms
-                          # ncp non-centrality parameter delta; currently except for rt(), only for abs(ncp) <= 37.62. If omitted, use the central t distribution.
+        # Coefficients
+        cat(paste("Coefficients:\n\n "))
 
-                          ## Saving
-                          formula <<- formula
-                          p_values <<- sapply(y, pt, q = ncol(X), df = df)
-                          custom_t_beta = sapply(t_beta, pt, q = ncol(X), df = df)
-                          residuals <<- e_circ
-                          predicted_values <<- y_circ
-                          coefficients <<- beta
-                          g_df <<- df
-                          g_y <<- y
-                          g_x <<- X
-                          g_var_beta <<- var_beta
-                          g_sigma <<- sqrt(sigma_squared)
-                          data_set_name <<- deparse(substitute(data))
-                        },
-                        print = function() {
-                          ## Formula
-                          cat(paste("linreg(formula = ", format(formula), ", data = ", data_set_name, ")\n\n", sep = ""))
+        # Headings
+        for (i in 1:length(l_beta)) {
+          cat(paste("\t", rownames(l_beta)[i], sep = ""))
+        }
+        cat("\n\t")
 
-                          ## Coefficients:
-                          temp_out = paste("Coefficients:\n\n ")
+        # Values
+        for (i in 1:length(l_beta)) {
+          cat(paste(round(l_beta[i], digits = 3), "\t\t"))
+        }
+        cat("\n")
+      },
+      plot      = function() {},
+      resid     = function() { return(residuals) },
+      pred      = function() { return(predicted_values) },
+      coef      = function() { return(coefficients) },
+      summary   = function() {
 
-                          for (i in 1:length(coefficients)) {
-                            temp_out = paste(temp_out, rownames(coefficients)[i], "\t", sep = "")
-                          }
-                          cat(temp_out)
-                          temp_out = paste("\n")
+        cat(paste("\nCall:\n"))
+        cat(paste("linreg(formula = ", format(formula), ", data = ", data_set_name, ")\n\n", sep = ""))
 
-                          for (i in 1:length(coefficients)) {
-                            temp_out = paste(temp_out, "\t", round(coefficients[i], digits = 3))
-                          }
+        ## Coefficients
+        temp_out = paste("Coefficients:\n\t")
+        temp_out = paste(temp_out, "\tEstimate\t", "Std. Error\t", "t value\t", "Pr(>|t|)\n", sep = "")
 
-                          cat(paste(temp_out, "\n"))
-                        },
-                        plot      = function() {},
-                        resid     = function() { return(residuals) },
-                        pred      = function() { return(predicted_values) },
-                        coef      = function() { return(coefficients) },
-                        summary_custom = function() {
-                          cat("p_values\n", p_values, "\n")
-                          cat("residuals\n", residuals, "\n")
-                          cat("predicted_values\n", predicted_values, "\n")
-                          cat("coefficients\n", coefficients, "\n")
-                        },
-                        summary   = function() {
+        for (i in 1:length(l_beta)) {
+          # Beta (coefficients), std error, t values, p values
 
-                          #expect_output(linreg_mod$summary(), "\\(Intercept\\)( )*-2.5[0-9]*( )*0.5[0-9]*( )*-4.4[0-9]*( )*.*( )*\\*\\*\\*")
-                          #expect_output(linreg_mod$summary(), "Sepal.Width( )*-1.3[0-9]*( )*0.1[0-9]*( )*-10.9[0-9]*( )*.*( )*\\*\\*\\*")
-                          #expect_output(linreg_mod$summary(), "Sepal.Length( )*1.7[0-9]*( )*0.0[0-9]*( )*27.5[0-9]*( )*.*( )*\\*\\*\\*")
-                          #expect_output(linreg_mod$summary(), "Residual standard error: 0.6[0-9]* on 147 degrees of freedom")
+          local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
 
-                          cat(paste("\nCall:\n"))
-                          cat(paste("linreg(formula = ", format(formula), ", data = ", data_set_name, ")\n\n", sep = ""))
-
-                          ## Coefficients:
-                          temp_out = paste("Coefficients:\n\t")
-                          temp_out = paste(temp_out, "\tEstimate\t", "Std. Error\t", "t value\t", "Pr(>|t|)\n", sep = "")
-
-                          for (i in 1:length(coefficients)) {
-                            # Beta (coefficients), std error, t values, p values
-
-                            local_t_value = coefficients[i]/sqrt(g_var_beta[i, i])
-
-                            temp_out = paste(temp_out,
-                                             rownames(coefficients)[i],
-                                             "\t", round(coefficients[i], 2),
-                                             "\t", round(sqrt(g_var_beta[i, i]), 2),
-                                             "\t", round(local_t_value, 2),
-                                             #"\t", round(pt(local_t_value, q = 1, df = g_df), 2),
-                                             "\n")
-                          }
-                          cat(temp_out)
-
-                          cat(paste("\n\nResidual standard error:", g_sigma, "on", g_df, "degrees of freedom"))
-
-                        }
-                      )
+          temp_out = paste(temp_out,
+                           rownames(l_beta)[i],
+                           "\t", round(l_beta[i], 2),
+                           "\t", round(sqrt(l_var_beta[i, i]), 2),
+                           "\t", round(local_t_value, 2),
+                           #"\t", round(pt(local_t_value, q = 1, df = g_df), 2),
+                           "\n")
+        }
+        cat(temp_out)
+        cat(paste("\n\nResidual standard error:", g_sigma, "on", g_df, "degrees of freedom"))
+      }
+    )
 )
 
-linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-#print(linreg_mod$p_values)
-#print(linreg_mod$resid())
-#print(linreg_mod$predicted_values())
-#print(linreg_mod$coefficients
-#linreg%print()
-linreg_mod$summary()
-
-
+linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+linreg_mod$print()
