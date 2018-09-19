@@ -5,7 +5,7 @@ linreg <- setRefClass("linreg",
       l_X = "matrix",
       l_y = "matrix",
       l_beta = "matrix", # Coefficients
-      l_y_fitted_values = "matrix",
+      l_y_fitted_values = "matrix", # Predicted Values
       l_e = "matrix", # Residuals
       l_n = "numeric",
       l_p = "numeric",
@@ -73,21 +73,19 @@ linreg <- setRefClass("linreg",
         cPrint(table)
       },
       plot      = function() {},
-      resid     = function() { return(residuals) },
-      pred      = function() { return(predicted_values) },
-      coef      = function() { return(coefficients) },
+      resid     = function() { return(l_e) },
+      pred      = function() { return(l_y_fitted_values) },
+      coef      = function() { return(l_beta) },
       summary   = function() {
 
-        cat(paste("\nCall:\n"))
-        cat(paste("linreg(formula = ", format(formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
+        cat("\nCall:\n")
+        cat(paste("linreg(formula = ", (format(l_formula)), ", data = ", l_data_set_name, ")\n\n", sep = ""))
 
         # Coefficients
-        cat("Coefficients:\n")
+        cat("Coefficients:\n\n")
 
+        # Values
         table = data.frame(matrix(ncol = 4, nrow = 0))
-
-        #cat(paste("\tEstimate\t", "Std. Error\t", "t value\t\t", "Pr(>|t|)\n", sep = ""))
-
         for (i in 1:length(l_beta)) {
           # Beta (coefficients), std error, t values, p values
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
@@ -97,7 +95,7 @@ linreg <- setRefClass("linreg",
 
         colnames(table) = c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
         cPrint(table)
-        cat(paste("\n\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
+        cat(paste("\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
       }
     )
 )
