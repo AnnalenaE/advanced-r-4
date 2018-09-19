@@ -107,7 +107,7 @@ linreg <- setRefClass("linreg",
         for (i in 1:length(l_beta)) {
           # Beta (coefficients), std error, t values, p values
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
-          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), 0)
+          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), "***")
           rownames(newRow)[1] = rownames(l_var_beta)[i]
           table = rbind(table, newRow)
         }
@@ -137,6 +137,6 @@ cPrint = function(x, stripoff = FALSE) {
   }
 }
 
-#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-#linreg_mod$print()
-#linreg_mod$summary()
+linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+linreg_mod$print()
+linreg_mod$summary()
