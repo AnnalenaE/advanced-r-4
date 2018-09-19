@@ -1,134 +1,145 @@
 #### linreg class
 
 linreg <- setRefClass("linreg",
-  fields = list(
-    p_values = "numeric",
-    residuals = "matrix",
-    predicted_values = "matrix",
-    coefficients = "matrix",
-    formula = "formula",
-    g_df = "numeric",
-    g_x = "matrix",
-    g_y = "matrix"),
-  methods = list(
-    initialize = function(formula, data) {
+                      fields = list(
+                        p_values = "numeric",
+                        residuals = "matrix",
+                        predicted_values = "matrix",
+                        coefficients = "matrix",
+                        formula = "formula",
+                        g_df = "numeric",
+                        g_sigma = "matrix",
+                        g_x = "matrix",
+                        g_var_beta = "matrix",
+                        data_set_name = "character",
+                        g_y = "matrix"),
 
-      # This contructor will be called like this
-      #linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+                      methods = list(
+                        initialize = function(formula, data) {
 
-      #if (!is.formula(formula)) stop("Error messgage")
-      #stopifnot(class(formula) == "formula", error = stop("formula is invalid."))
+                          # This contructor will be called like this
+                          #linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 
-      X = model.matrix(formula,data) ## Create the X matrix with dummy variables. ~ necessary?
-      #y = data[,names(data) == all.vars(formula)[1]] ## Get all dependent variables
-      y = as.matrix(data[all.vars(formula)[1]])
-      #y = data[which(names(data) == y)]
+                          #if (!is.formula(formula)) stop("Error messgage")
+                          #stopifnot(class(formula) == "formula", error = stop("formula is invalid."))
 
-      # Calculate Regressions coefficients:
-      beta = as.matrix((solve((t(X) %*% X)) %*% t(X) %*% y)) ## Remember he told something about that solve doesn't always works, depends on the eigenvalues
+                          X = model.matrix(formula, data) ## Create the X matrix with dummy variables. ~ necessary?
+                          #y = data[,names(data) == all.vars(formula)[1]] ## Get all dependent variables
+                          y = as.matrix(data[all.vars(formula)[1]])
+                          #y = data[which(names(data) == y)]
 
-      # Calculate The fitted values:
-      y_circ = X %*% beta
+                          # Calculate Regressions coefficients:
+                          beta = as.matrix((solve((t(X) %*% X)) %*% t(X) %*% y)) ## Remember he told something about that solve doesn't always works, depends on the eigenvalues
 
-      # Calculate The residuals:
-      e_circ = as.matrix(y - y_circ)
+                          # Calculate The fitted values:
+                          y_circ = X %*% beta
 
-      # Calculate The degrees of freedom:
-      # where n is the number of observations and p is the number of parameters in the model.
-      n = nrow(X)
-      p = ncol(X)
-      df = n - p # We still need to get n and p, maybe it's just length(X) - length(y)
-      #df = df.residual(y_circ)
+                          # Calculate The residuals:
+                          e_circ = as.matrix(y - y_circ)
 
-      # Calculate The residual variance:
-      sigma_squared = (t(as.matrix(e_circ)) %*% as.matrix(e_circ)) / df
+                          # Calculate The degrees of freedom:
+                          # where n is the number of observations and p is the number of parameters in the model.
+                          n = nrow(X)
+                          p = ncol(X)
+                          df = n - p # We still need to get n and p, maybe it's just length(X) - length(y)
+                          #df = df.residual(y_circ)
 
-      # Calculate The variance of the regression coefficients:
-      var_beta = as.numeric(sigma_squared) * (t(as.matrix(X)) %*% as.matrix(X)) ## Why not use var(beta)?
+                          # Calculate The residual variance:
+                          sigma_squared = (t(as.matrix(e_circ)) %*% as.matrix(e_circ)) / df
 
-      # Calculate The t-values for each coefficient:
-      t_beta = beta / as.numeric(sqrt(var(beta)))
+                          # Calculate The variance of the regression coefficients:
+                          var_beta = as.numeric(sigma_squared) * solve(t(as.matrix(X)) %*% as.matrix(X)) ## Why not use var(beta)?
 
-      # Use pt() function the calcualte the p values and then store them inside
-      # of our object for each regression coefficient
-      #pt()
+                          # Calculate The t-values for each coefficient:
+                          t_beta = beta / as.numeric(sqrt(var(beta)))
 
-      #customObject = linreg$new()
-      # x, q	vector of quantiles
-      # df number of freedoms
-      # ncp non-centrality parameter delta; currently except for rt(), only for abs(ncp) <= 37.62. If omitted, use the central t distribution.
+                          # Use pt() function the calcualte the p values and then store them inside
+                          # of our object for each regression coefficient
+                          #pt()
 
-      ## Saving
-      formula <<- formula
-      p_values <<- sapply(y, pt, q = ncol(X), df = df)
-      residuals <<- e_circ
-      predicted_values <<- y_circ
-      coefficients <<- beta
-      g_df <<- df
-      g_y <<- y
-      g_x <<- X
+                          #customObject = linreg$new()
+                          # x, q	vector of quantiles
+                          # df number of freedoms
+                          # ncp non-centrality parameter delta; currently except for rt(), only for abs(ncp) <= 37.62. If omitted, use the central t distribution.
 
-    },
-    print     = function() {},
-    plot      = function() {},
-    resid     = function() { return(residuals) },
-    pred      = function() { return(predicted_values) },
-    coef      = function() { return(coefficients) },
-    summary_custom = function() {
-      cat("p_values\n", p_values, "\n")
-      cat("residuals\n", residuals, "\n")
-      cat("predicted_values\n", predicted_values, "\n")
-      cat("coefficients\n", coefficients, "\n")
-    },
-    summary   = function() {
+                          ## Saving
+                          formula <<- formula
+                          p_values <<- sapply(y, pt, q = ncol(X), df = df)
+                          residuals <<- e_circ
+                          predicted_values <<- y_circ
+                          coefficients <<- beta
+                          g_df <<- df
+                          g_y <<- y
+                          g_x <<- X
+                          g_var_beta <<- var_beta
+                          g_sigma <<- sqrt(sigma_squared)
+                          data_set_name <<- deparse(substitute(data))
+                        },
+                        print = function() {
+                          ## Formula
+                          cat(paste("linreg(formula = ", format(formula), ", data = ", data_set_name, ")\n\n", sep = ""))
 
-      #expect_output(linreg_mod$summary(), "\\(Intercept\\)( )*-2.5[0-9]*( )*0.5[0-9]*( )*-4.4[0-9]*( )*.*( )*\\*\\*\\*")
-      #expect_output(linreg_mod$summary(), "Sepal.Width( )*-1.3[0-9]*( )*0.1[0-9]*( )*-10.9[0-9]*( )*.*( )*\\*\\*\\*")
-      #expect_output(linreg_mod$summary(), "Sepal.Length( )*1.7[0-9]*( )*0.0[0-9]*( )*27.5[0-9]*( )*.*( )*\\*\\*\\*")
-      #expect_output(linreg_mod$summary(), "Residual standard error: 0.6[0-9]* on 147 degrees of freedom")
+                          ## Coefficients:
+                          temp_out = paste("Coefficients:\n\n ")
 
-      cat(paste("Call:\n"))
-      cat(paste("lm(formula = ", format(formula), ")\n\n"))
+                          for (i in 1:length(coefficients)) {
+                            temp_out = paste(temp_out, rownames(coefficients)[i], "\t", sep = "")
+                          }
+                          cat(temp_out)
+                          temp_out = paste("\n")
 
-      ## Coefficients:
-      temp_out = paste("Coefficients:\n\t")
+                          for (i in 1:length(coefficients)) {
+                            temp_out = paste(temp_out, "\t", round(coefficients[i], digits = 3))
+                          }
 
-      for (i in 1:length(coefficients)) {
-        temp_out = paste(temp_out, rownames(coefficients)[i])
-      }
-      cat(temp_out)
-      temp_out = paste("\n")
+                          cat(paste(temp_out, "\n"))
+                        },
+                        plot      = function() {},
+                        resid     = function() { return(residuals) },
+                        pred      = function() { return(predicted_values) },
+                        coef      = function() { return(coefficients) },
+                        summary_custom = function() {
+                          cat("p_values\n", p_values, "\n")
+                          cat("residuals\n", residuals, "\n")
+                          cat("predicted_values\n", predicted_values, "\n")
+                          cat("coefficients\n", coefficients, "\n")
+                        },
+                        summary   = function() {
 
-      for (i in 1:length(coefficients)) {
-        temp_out = paste(temp_out, "\t", round(coefficients[i], digits = 3))
-      }
+                          #expect_output(linreg_mod$summary(), "\\(Intercept\\)( )*-2.5[0-9]*( )*0.5[0-9]*( )*-4.4[0-9]*( )*.*( )*\\*\\*\\*")
+                          #expect_output(linreg_mod$summary(), "Sepal.Width( )*-1.3[0-9]*( )*0.1[0-9]*( )*-10.9[0-9]*( )*.*( )*\\*\\*\\*")
+                          #expect_output(linreg_mod$summary(), "Sepal.Length( )*1.7[0-9]*( )*0.0[0-9]*( )*27.5[0-9]*( )*.*( )*\\*\\*\\*")
+                          #expect_output(linreg_mod$summary(), "Residual standard error: 0.6[0-9]* on 147 degrees of freedom")
 
-      cat(paste(temp_out, "\n"))
+                          cat(paste("\nCall:\n"))
+                          cat(paste("linreg(formula = ", format(formula), ", data = ", data_set_name, ")\n\n", sep = ""))
 
-      ## ... THIS NEEDS TO BE DONE, no idea what they want, check unit tests at https://github.com/STIMALiU/AdvRCourse/blob/master/Testsuites/test_linreg_ref_class.R
+                          ## Coefficients:
+                          temp_out = paste("Coefficients:\n\t")
+                          temp_out = paste(temp_out, "\tEstimate\t", "Std. Error\t", "t value\t", "Pr(>|t|)\n", sep = "")
 
+                          for (i in 1:length(coefficients)) {
+                            # Beta (coefficients), std error, t values, p values
+                            temp_out = paste(temp_out,
+                                             rownames(coefficients)[i],
+                                             "\t", round(coefficients[i], 2),
+                                             "\t", round(sqrt(g_var_beta[i, i]), 2),
+                                             "\n")
+                          }
+                          cat(temp_out)
 
-      for (j in 2:ncol(g_x)) {
-        temp_out = "\n"
-        temp_out = paste(temp_out, colnames(g_x)[j])
-        aaa = coefficients
-        cat(temp_out)
-      }
+                          cat(paste("\n\nResidual standard error:", g_sigma, "on", g_df, "degrees of freedom"))
 
-      ## Residual Standard Error
-      ## We need the residual standard error here... This one is false
-      stderr <- function(x) sqrt(var(x,na.rm=TRUE)/length(na.omit(x)))
-      cat(paste("\n\nResidual standard error:", stderr(residuals), "on", g_df, "degrees of freedom"))
-
-    }
-  )
+                        }
+                      )
 )
 
 linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 #print(linreg_mod$p_values)
-#print(linreg_mod$resid)
-#print(linreg_mod$predicted_values)
-#print(linreg_mod$coefficients)
+#print(linreg_mod$resid())
+#print(linreg_mod$predicted_values())
+#print(linreg_mod$coefficients
+#linreg%print()
 linreg_mod$summary()
 
 
