@@ -1,7 +1,15 @@
 #### linreg class
 
 linreg <- setRefClass("linreg",
-  fields = list(p_values = "numeric", residuals = "matrix", predicted_values = "matrix", coefficients = "matrix"),
+  fields = list(
+    p_values = "numeric",
+    residuals = "matrix",
+    predicted_values = "matrix",
+    coefficients = "matrix",
+    formula = "formula",
+    g_df = "numeric",
+    g_x = "matrix",
+    g_y = "matrix"),
   methods = list(
     initialize = function(formula, data) {
 
@@ -51,10 +59,14 @@ linreg <- setRefClass("linreg",
       # ncp non-centrality parameter delta; currently except for rt(), only for abs(ncp) <= 37.62. If omitted, use the central t distribution.
 
       ## Saving
+      formula <<- formula
       p_values <<- sapply(y, pt, q = ncol(X), df = df)
       residuals <<- e_circ
       predicted_values <<- y_circ
       coefficients <<- beta
+      g_df <<- df
+      g_y <<- y
+      g_x <<- X
 
     },
     print     = function() {},
@@ -62,14 +74,61 @@ linreg <- setRefClass("linreg",
     resid     = function() { return(residuals) },
     pred      = function() { return(predicted_values) },
     coef      = function() { return(coefficients) },
-    summary   = function() {}
+    summary_custom = function() {
+      cat("p_values\n", p_values, "\n")
+      cat("residuals\n", residuals, "\n")
+      cat("predicted_values\n", predicted_values, "\n")
+      cat("coefficients\n", coefficients, "\n")
+    },
+    summary   = function() {
+
+      #expect_output(linreg_mod$summary(), "\\(Intercept\\)( )*-2.5[0-9]*( )*0.5[0-9]*( )*-4.4[0-9]*( )*.*( )*\\*\\*\\*")
+      #expect_output(linreg_mod$summary(), "Sepal.Width( )*-1.3[0-9]*( )*0.1[0-9]*( )*-10.9[0-9]*( )*.*( )*\\*\\*\\*")
+      #expect_output(linreg_mod$summary(), "Sepal.Length( )*1.7[0-9]*( )*0.0[0-9]*( )*27.5[0-9]*( )*.*( )*\\*\\*\\*")
+      #expect_output(linreg_mod$summary(), "Residual standard error: 0.6[0-9]* on 147 degrees of freedom")
+
+      cat(paste("Call:\n"))
+      cat(paste("lm(formula = ", format(formula), ")\n\n"))
+
+      ## Coefficients:
+      temp_out = paste("Coefficients:\n\t")
+
+      for (i in 1:length(coefficients)) {
+        temp_out = paste(temp_out, rownames(coefficients)[i])
+      }
+      cat(temp_out)
+      temp_out = paste("\n")
+
+      for (i in 1:length(coefficients)) {
+        temp_out = paste(temp_out, "\t", round(coefficients[i], digits = 3))
+      }
+
+      cat(paste(temp_out, "\n"))
+
+      ## ... THIS NEEDS TO BE DONE, no idea what they want, check unit tests at https://github.com/STIMALiU/AdvRCourse/blob/master/Testsuites/test_linreg_ref_class.R
+
+
+      for (j in 2:ncol(g_x)) {
+        temp_out = "\n"
+        temp_out = paste(temp_out, colnames(g_x)[j])
+        aaa = coefficients
+        cat(temp_out)
+      }
+
+      ## Residual Standard Error
+      ## We need the residual standard error here... This one is false
+      stderr <- function(x) sqrt(var(x,na.rm=TRUE)/length(na.omit(x)))
+      cat(paste("\n\nResidual standard error:", stderr(residuals), "on", g_df, "degrees of freedom"))
+
+    }
   )
 )
 
 linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-print(linreg_mod$p_values)
-print(linreg_mod$resid)
-print(linreg_mod$predicted_values)
-print(linreg_mod$coefficients)
+#print(linreg_mod$p_values)
+#print(linreg_mod$resid)
+#print(linreg_mod$predicted_values)
+#print(linreg_mod$coefficients)
+linreg_mod$summary()
 
 
