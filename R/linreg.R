@@ -59,24 +59,18 @@ linreg <- setRefClass("linreg",
         l_p_values <<- sapply(l_y, pt, q = ncol(l_X), df = l_df)
       },
       print = function() {
-
         # Formula
         cat(paste("linreg(formula = ", format(formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
 
         # Coefficients
-        cat(paste("Coefficients:\n\n "))
-
-        # Headings
-        for (i in 1:length(l_beta)) {
-          cat(paste("\t", rownames(l_beta)[i], sep = ""))
-        }
-        cat("\n\t")
+        cat(paste("Coefficients:\n\n"))
 
         # Values
+        table = setNames(data.frame(matrix(ncol = length(l_beta), nrow = 0)), rownames(l_beta))
         for (i in 1:length(l_beta)) {
-          cat(paste(round(l_beta[i], digits = 3), "\t\t"))
+          table[1,i] = round(l_beta[i], 3)
         }
-        cat("\n")
+        cPrint(table)
       },
       plot      = function() {},
       resid     = function() { return(residuals) },
@@ -85,30 +79,39 @@ linreg <- setRefClass("linreg",
       summary   = function() {
 
         cat(paste("\nCall:\n"))
-        cat(paste("linreg(formula = ", format(formula), ", data = ", data_set_name, ")\n\n", sep = ""))
+        cat(paste("linreg(formula = ", format(formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
 
-        ## Coefficients
-        temp_out = paste("Coefficients:\n\t")
-        temp_out = paste(temp_out, "\tEstimate\t", "Std. Error\t", "t value\t", "Pr(>|t|)\n", sep = "")
+        # Coefficients
+        cat("Coefficients:\n")
+
+        table = data.frame(matrix(ncol = 4, nrow = 0))
+
+        #cat(paste("\tEstimate\t", "Std. Error\t", "t value\t\t", "Pr(>|t|)\n", sep = ""))
 
         for (i in 1:length(l_beta)) {
           # Beta (coefficients), std error, t values, p values
-
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
-
-          temp_out = paste(temp_out,
-                           rownames(l_beta)[i],
-                           "\t", round(l_beta[i], 2),
-                           "\t", round(sqrt(l_var_beta[i, i]), 2),
-                           "\t", round(local_t_value, 2),
-                           #"\t", round(pt(local_t_value, q = 1, df = g_df), 2),
-                           "\n")
+          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), 0)
+          table = rbind(table, newRow)
         }
-        cat(temp_out)
-        cat(paste("\n\nResidual standard error:", g_sigma, "on", g_df, "degrees of freedom"))
+
+        colnames(table) = c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+        cPrint(table)
+        cat(paste("\n\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
       }
     )
 )
 
+# This function is needed becasue R in uncapable of printing inside of an RC class
+cPrint = function(x) {
+  if (is.data.frame(x)) {
+    print(x, row.names = FALSE)
+  }
+  else {
+    print(x)
+  }
+}
+
 linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-linreg_mod$print()
+#linreg_mod$print()
+linreg_mod$summary()
