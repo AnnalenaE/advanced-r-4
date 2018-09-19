@@ -60,7 +60,7 @@ linreg <- setRefClass("linreg",
       },
       print = function() {
         # Formula
-        cat(paste("linreg(formula = ", format(formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
+        cat(paste("linreg(formula = ", format(l_formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
 
         # Coefficients
         cat(paste("Coefficients:\n\n"))
@@ -111,5 +111,5 @@ cPrint = function(x) {
 }
 
 linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-#linreg_mod$print()
+linreg_mod$print()
 linreg_mod$summary()
