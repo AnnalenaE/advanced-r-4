@@ -1,5 +1,23 @@
-#### linreg class
-
+#' Linreg Class
+#'
+#' This class does linear regression and provided different methods to display the data.
+#'
+#' @field l_X matrix.
+#' @field l_y matrix.
+#' @field l_beta matrix.
+#' @field l_y_fitted_values matrix.
+#' @field l_e matrix.
+#' @field l_n numeric.
+#' @field l_p numeric.
+#' @field l_df numeric.
+#' @field l_sigma_s matrix.
+#' @field l_var_beta matrix.
+#' @field l_formula formula.
+#' @field l_p_values numeric.
+#' @field l_data_set_name character.
+#'
+#' @return Nothing.
+#' @export
 linreg <- setRefClass("linreg",
     fields = list(
       l_X = "matrix",
@@ -90,26 +108,35 @@ linreg <- setRefClass("linreg",
           # Beta (coefficients), std error, t values, p values
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
           newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), 0)
+          rownames(newRow)[1] = rownames(l_var_beta)[i]
           table = rbind(table, newRow)
         }
 
         colnames(table) = c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
-        cPrint(table)
+        cPrint(table, TRUE)
         cat(paste("\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
       }
     )
 )
 
-# This function is needed becasue R in uncapable of printing inside of an RC class
-cPrint = function(x) {
+#' cPrint (custom print)
+#'
+#' Prints the value in \code{x}. This class can be used to print inside RC classes, which is not possible otherwise.
+#'
+#' @param x Any object that normally can be printed.
+#' @param stripoff If set to TRUE and \code{x} is a data.frame, the column names will be stripped off.
+#'
+#' @return Nothing.
+#' @export
+cPrint = function(x, stripoff = FALSE) {
   if (is.data.frame(x)) {
-    print(x, row.names = FALSE)
+    print(x, row.names = stripoff)
   }
   else {
     print(x)
   }
 }
 
-linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-linreg_mod$print()
-linreg_mod$summary()
+#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+#linreg_mod$print()
+#linreg_mod$summary()
