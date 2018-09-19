@@ -121,11 +121,16 @@ linreg <- setRefClass("linreg",
 
                           for (i in 1:length(coefficients)) {
                             # Beta (coefficients), std error, t values, p values
+
+                            local_t_value = coefficients[i]/sqrt(g_var_beta[i, i])
+
                             temp_out = paste(temp_out,
                                              rownames(coefficients)[i],
                                              "\t", round(coefficients[i], 2),
                                              "\t", round(sqrt(g_var_beta[i, i]), 2),
-                                             "\t",round(coefficients[i]/sqrt(g_var_beta[i, i]), 2), "\n")
+                                             "\t", round(local_t_value, 2),
+                                             #"\t", round(pt(local_t_value, q = 1, df = g_df), 2),
+                                             "\n")
                           }
                           cat(temp_out)
 
