@@ -100,22 +100,43 @@ linreg <- setRefClass("linreg",
 
       # plot function -------------------
       plot  = function() {
-        resfit = as.data.frame(cbind(l_e, l_y))
-        names(resfit) = c("Residuals", "Fitted Values")
+        #resfit = as.data.frame(cbind(l_e, l_y))
+        #names(resfit) = c("residuals", "fitted")
 
-        plot1 = ggplot(resfit, aes("Fitted Values", "Residuals"))+
+
+        plot1 = ggplot(data.frame(l_e, l_y_fitted_values), aes(y = l_e, x = l_y_fitted_values))+
           geom_point()+
-          xlab(paste("Fitted Values\n", format(l_formula), ""))
+          xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
+          ylab("Residuals")+
+          stat_summary(aes(y = l_e, x = l_y_fitted_values ,group=1),
+                       fun.y=median, colour="red", geom="line",group=1)
+          # geom_smooth(aes(y = l_e, x = l_y_fitted_values),
+          #             formula = y~x,
+          #             se = FALSE,
+          #             span = 1,
+          #             color = "red",
+          #             method = "auto")
 
         cPrint(plot1)
 
-        stdresfit = as.data.frame(cbind(sqrt(abs((l_e - mean(l_e)))), l_y))
-        names(stdresfit) = c("stdResiduals", "Fitted Values")
+        stdresfit = as.data.frame(cbind(sqrt(abs((l_e - mean(l_e)))), l_y_fitted_values))
+        names(stdresfit) = c("stdResiduals", "fitted")
 
-        plot2 = ggplot(stdresfit, aes("Fitted Values", "stdResiduals"))+
+        plot2 = ggplot(stdresfit, aes(x = fitted, y = stdResiduals))+
           geom_point()+
-          xlab(paste("Fitted Values\n", format(l_formula), ""))+
-          ylab(expression(sqrt("|Standardized residuals|")))
+          xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
+          ylab(expression(sqrt("|Standardized residuals|")))+
+          stat_summary(aes(y = stdResiduals, x = fitted ,group=1),
+                       fun.y= mean, colour="red", geom="line",group=1)
+
+
+
+        # geom_smooth(aes(y = stdResiduals, x = fitted),
+          #             formula = y~x,
+          #             se = FALSE,
+          #             span = 1,
+          #             color = "red",
+          #             method = "auto")
         cPrint(plot2)
       },
 
@@ -174,7 +195,7 @@ cPrint = function(x, stripoff = FALSE) {
 
 library(ggplot2)
 
-linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+linreg_mod = linreg$new(Petal.Length~Species, data=iris)
 linreg_mod$print()
 linreg_mod$summary()
 linreg_mod$plot()
