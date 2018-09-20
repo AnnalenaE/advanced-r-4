@@ -2,19 +2,20 @@
 #'
 #' This class does linear regression and provided different methods to display the data.
 #'
-#' @field l_X matrix.
-#' @field l_y matrix.
-#' @field l_beta matrix.
-#' @field l_y_fitted_values matrix.
-#' @field l_e matrix.
-#' @field l_n numeric.
-#' @field l_p numeric.
-#' @field l_df numeric.
-#' @field l_sigma_s matrix.
-#' @field l_var_beta matrix.
-#' @field l_formula formula.
-#' @field l_p_values numeric.
-#' @field l_data_set_name character.
+#' @field l_X matrix. Independent Values.
+#' @field l_y matrix. Depenent Values.
+#' @field l_beta matrix. Regression Coeffcients.
+#' @field l_y_fitted_values matrix. Fitted Values.
+#' @field l_e matrix. Residuals.
+#' @field l_n numeric. Number of Independant Values (Number of Observations).
+#' @field l_p numeric. Number of Dependant Values (Number of Parameters in the Model).
+#' @field l_df numeric. Degrees of freedom.
+#' @field l_sigma_s matrix. Residual Variance.
+#' @field l_var_beta matrix. Variance of the Regression Coefficients.
+#' @field l_formula formula. The Formula for the Linear Regression.
+#' @field l_p_values numeric. P-Values.
+#' @field l_t_beta matrix. T-Values for Each Coefficient.
+#' @field l_data_set_name character. The Given Data.
 #'
 #' @return Nothing.
 #' @export
@@ -23,18 +24,18 @@ linreg <- setRefClass("linreg",
     fields = list(
       l_X = "matrix",
       l_y = "matrix",
-      l_beta = "matrix", # Coefficients
-      l_y_fitted_values = "matrix", # Predicted Values
-      l_e = "matrix", # Residuals
+      l_beta = "matrix",
+      l_y_fitted_values = "matrix",
+      l_e = "matrix",
       l_n = "numeric",
       l_p = "numeric",
-      l_df = "numeric", # Degrees of Freedom
+      l_df = "numeric",
       l_sigma_s = "matrix",
       l_var_beta = "matrix",
       l_formula = "formula",
       l_p_values = "numeric",
+      l_t_beta = "matrix",
       l_data_set_name = "character"),
-
 
     # Methods ----------------------------
     methods = list(
@@ -73,8 +74,8 @@ linreg <- setRefClass("linreg",
         # Variance of Regression Coefficients
         l_var_beta <<- as.numeric(l_sigma_s) * solve(t(as.matrix(l_X)) %*% as.matrix(l_X))
 
-        # Calculate The t-values for each coefficient:
-        t_l_beta = l_beta / as.numeric(sqrt(var(l_beta)))
+        # Calculate The t-values for each coefficient
+        l_t_beta <<- l_beta / as.numeric(sqrt(var(l_beta))) ## These calculated values are wrong
 
         ## Saving
         l_formula <<- formula
@@ -195,7 +196,7 @@ cPrint = function(x, stripoff = FALSE) {
 
 library(ggplot2)
 
-linreg_mod = linreg$new(Petal.Length~Species, data=iris)
+linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 linreg_mod$print()
 linreg_mod$summary()
-linreg_mod$plot()
+#linreg_mod$plot()
