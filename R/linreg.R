@@ -42,6 +42,7 @@ linreg <- setRefClass("linreg",
 
       # Constructor ----------------------
       initialize = function(formula, data) {
+        "Constructor for creating the object. Arguments are the formlua and the corresponding data frame."
 
         # Input Validation
         #if (!is.formula(formula)) stop("Error messgage")
@@ -85,6 +86,8 @@ linreg <- setRefClass("linreg",
 
       # print function ------------------
       print = function() {
+        "Prints some basic information like the coefficients."
+
         # Formula
         cat(paste("linreg(formula = ", format(l_formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
 
@@ -101,9 +104,10 @@ linreg <- setRefClass("linreg",
 
       # plot function -------------------
       plot  = function() {
+        "Plots the Fitted Values one time with the Residuals and one time with standardized Residuals"
+
         #resfit = as.data.frame(cbind(l_e, l_y))
         #names(resfit) = c("residuals", "fitted")
-
 
         plot1 = ggplot(data.frame(l_e, l_y_fitted_values), aes(y = l_e, x = l_y_fitted_values))+
           geom_point()+
@@ -142,16 +146,26 @@ linreg <- setRefClass("linreg",
       },
 
       # resid function -------------------
-      resid     = function() { return(l_e) },
+      resid     = function() {
+        "Returns the Residuals"
+        return(l_e)
+      },
 
       # pred function --------------------
-      pred      = function() { return(l_y_fitted_values) },
+      pred      = function() {
+        "Returns the Fitted Values"
+        return(l_y_fitted_values)
+      },
 
       # ceof function --------------------
-      coef      = function() { return(l_beta) },
+      coef      = function() {
+        "Returns the Coefficients"
+        return(l_beta)
+      },
 
       # summary function -----------------
       summary   = function() {
+        "Prints a summary of the Linear Regression"
 
         cat("\nCall:\n")
         cat(paste("linreg(formula = ", (format(l_formula)), ", data = ", l_data_set_name, ")\n\n", sep = ""))
@@ -165,7 +179,6 @@ linreg <- setRefClass("linreg",
           # Beta (coefficients), std error, t values, p values
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
           local_p_value = 2 * pt(abs(local_t_value), l_df, lower.tail = FALSE)
-          #p_val <<- 2 * pt(abs(t_val), df, lower.tail = FALSE)
           newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), local_p_value, calculateMagicRainbowStars(local_p_value))
           rownames(newRow)[1] = rownames(l_var_beta)[i]
           table = rbind(table, newRow)
@@ -213,7 +226,7 @@ calculateMagicRainbowStars = function(p_value) {
   return("***")
 }
 
-linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-linreg_mod$print()
-linreg_mod$summary()
+#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+#linreg_mod$print()
+#linreg_mod$summary()
 #linreg_mod$plot()

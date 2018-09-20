@@ -43,4 +43,21 @@ This class does linear regression and provided different methods to display the 
 \item{\code{l_data_set_name}}{character. The Given Data.}
 }}
 
+\section{Methods}{
+
+\describe{
+\item{\code{coef()}}{Returns the Coefficients}
+
+\item{\code{initialize(formula, data)}}{Constructor for creating the object. Arguments are the formlua and the corresponding data frame.}
+
+\item{\code{plot()}}{Plots the Fitted Values one time with the Residuals and one time with standardized Residuals}
+
+\item{\code{pred()}}{Returns the Fitted Values}
+
+\item{\code{print()}}{Prints some basic information like the coefficients.}
+
+\item{\code{resid()}}{Returns the Residuals}
+
+\item{\code{summary()}}{Prints a summary of the Linear Regression}
+}}
 
