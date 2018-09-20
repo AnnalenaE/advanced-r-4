@@ -194,8 +194,6 @@ cPrint = function(x, stripoff = FALSE) {
   }
 }
 
-library(ggplot2)
-
 linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 linreg_mod$print()
 linreg_mod$summary()
