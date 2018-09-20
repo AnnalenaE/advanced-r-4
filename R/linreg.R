@@ -179,7 +179,7 @@ linreg <- setRefClass("linreg",
           # Beta (coefficients), std error, t values, p values
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
           local_p_value = 2 * pt(abs(local_t_value), l_df, lower.tail = FALSE)
-          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), local_p_value, calculateMagicRainbowStars(local_p_value))
+          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), formatC(local_p_value, format = "e", digits = 2), calculateMagicRainbowStars(local_p_value))
           rownames(newRow)[1] = rownames(l_var_beta)[i]
           table = rbind(table, newRow)
         }
