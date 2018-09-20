@@ -100,21 +100,23 @@ linreg <- setRefClass("linreg",
 
       # plot function -------------------
       plot  = function() {
-        library(ggplot2)
-        resfit = cbind(l_e, l_y)
+        resfit = as.data.frame(cbind(l_e, l_y))
         names(resfit) = c("Residuals", "Fitted Values")
 
-        plot1 = ggplot(resfit, aes = (x = "Fitted Values", y = "Residuals"))+
+        plot1 = ggplot(resfit, aes("Fitted Values", "Residuals"))+
           geom_point()+
           xlab(paste("Fitted Values\n", format(l_formula), ""))
 
-        stdresfit = cbind(sqrt(abs((l_e - mean(l_e)))), l_y)
+        cPrint(plot1)
+
+        stdresfit = as.data.frame(cbind(sqrt(abs((l_e - mean(l_e)))), l_y))
         names(stdresfit) = c("stdResiduals", "Fitted Values")
 
-        plot2 = ggplot(stdresfit, aes = (x = "Fitted Values", y = "stdResiduals"))+
+        plot2 = ggplot(stdresfit, aes("Fitted Values", "stdResiduals"))+
           geom_point()+
           xlab(paste("Fitted Values\n", format(l_formula), ""))+
-          ylab(expression(sqrt(|"Standardized residuals"|)))
+          ylab(expression(sqrt("|Standardized residuals|")))
+        cPrint(plot2)
       },
 
       # resid function -------------------
@@ -149,8 +151,6 @@ linreg <- setRefClass("linreg",
         cPrint(table, TRUE)
         cat(paste("\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
       }
-
-
     )
 )
 
@@ -172,6 +172,9 @@ cPrint = function(x, stripoff = FALSE) {
   }
 }
 
+library(ggplot2)
+
 linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 linreg_mod$print()
 linreg_mod$summary()
+linreg_mod$plot()

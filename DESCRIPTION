@@ -1,13 +1,14 @@
 Package: linear.regression
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Linear Regression
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Annalena Erhard, Ruben J Munoz, Maximilian Pfundstein
+Maintainer: Maximilian Pfundstein <maximilian@pfundstein.org>
+Description: Custom implementation for the linear regression
+License: Apache License
 Encoding: UTF-8
+Depends: R (>= 3.3.0)
 LazyData: true
 Suggests: testthat
+Imports: ggplot2
 RoxygenNote: 6.1.0
