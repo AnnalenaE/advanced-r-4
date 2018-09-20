@@ -1,4 +1,5 @@
 # Advanced Programming in R - Assignment 4
+[![Coverage status](https://codecov.io/gh/AnnalenaE/advanced-r-4/branch/master/graph/badge.svg)](https://codecov.io/github/AnnalenaE/advanced-r-4?branch=master)
 [![Build Status](https://travis-ci.org/AnnalenaE/advanced-r-4.svg?branch=master)](https://travis-ci.org/AnnalenaE/advanced-r-4)
 
 ## ToDo
