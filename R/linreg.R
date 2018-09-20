@@ -18,6 +18,7 @@
 #'
 #' @return Nothing.
 #' @export
+
 linreg <- setRefClass("linreg",
     fields = list(
       l_X = "matrix",
@@ -33,8 +34,12 @@ linreg <- setRefClass("linreg",
       l_formula = "formula",
       l_p_values = "numeric",
       l_data_set_name = "character"),
+
+
+    # Methods ----------------------------
     methods = list(
-      # Constructor
+
+      # Constructor ----------------------
       initialize = function(formula, data) {
 
         # Input Validation
@@ -76,6 +81,8 @@ linreg <- setRefClass("linreg",
         l_data_set_name <<- deparse(substitute(data))
         l_p_values <<- sapply(l_y, pt, q = ncol(l_X), df = l_df)
       },
+
+      # print function ------------------
       print = function() {
         # Formula
         cat(paste("linreg(formula = ", format(l_formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
@@ -90,10 +97,36 @@ linreg <- setRefClass("linreg",
         }
         cPrint(table)
       },
-      plot      = function() {},
+
+      # plot function -------------------
+      plot  = function() {
+        library(ggplot2)
+        resfit = cbind(l_e, l_y)
+        names(resfit) = c("Residuals", "Fitted Values")
+
+        plot1 = ggplot(resfit, aes = (x = "Fitted Values", y = "Residuals"))+
+          geom_point()+
+          xlab(paste("Fitted Values\n", format(l_formula), ""))
+
+        stdresfit = cbind(sqrt(abs((l_e - mean(l_e)))), l_y)
+        names(stdresfit) = c("stdResiduals", "Fitted Values")
+
+        plot2 = ggplot(stdresfit, aes = (x = "Fitted Values", y = "stdResiduals"))+
+          geom_point()+
+          xlab(paste("Fitted Values\n", format(l_formula), ""))+
+          ylab(expression(sqrt(|"Standardized residuals"|)))
+      },
+
+      # resid function -------------------
       resid     = function() { return(l_e) },
+
+      # pred function --------------------
       pred      = function() { return(l_y_fitted_values) },
+
+      # ceof function --------------------
       coef      = function() { return(l_beta) },
+
+      # summary function -----------------
       summary   = function() {
 
         cat("\nCall:\n")
@@ -116,6 +149,8 @@ linreg <- setRefClass("linreg",
         cPrint(table, TRUE)
         cat(paste("\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
       }
+
+
     )
 )
 
