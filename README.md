@@ -1,5 +1,5 @@
 # Advanced Programming in R - Assignment 4
-To be continued...
+[![Build Status](https://travis-ci.org/AnnalenaE/advanced-r-4.svg?branch=master)](https://travis-ci.org/AnnalenaE/advanced-r-4)
 
 ## ToDo
 - ~~Code cleanup!~~
