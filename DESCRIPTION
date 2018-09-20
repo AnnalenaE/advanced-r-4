@@ -9,6 +9,8 @@ License: Apache License
 Encoding: UTF-8
 Depends: R (>= 3.3.0)
 LazyData: true
-Suggests: testthat
+Suggests: 
+    testthat,
+    covr
 Imports: ggplot2
 RoxygenNote: 6.1.0

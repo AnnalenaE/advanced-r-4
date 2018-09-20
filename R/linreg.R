@@ -14,7 +14,7 @@
 #' @field l_var_beta matrix. Variance of the Regression Coefficients.
 #' @field l_formula formula. The Formula for the Linear Regression.
 #' @field l_p_values numeric. P-Values.
-#' @field l_t_beta matrix. T-Values for Each Coefficient.
+#' @field l_t_beta matrix. T-Values for each Coefficient.
 #' @field l_data_set_name character. The Given Data.
 #'
 #' @return Nothing.
@@ -160,16 +160,18 @@ linreg <- setRefClass("linreg",
         cat("Coefficients:\n\n")
 
         # Values
-        table = data.frame(matrix(ncol = 4, nrow = 0))
+        table = data.frame(matrix(ncol = 5, nrow = 0))
         for (i in 1:length(l_beta)) {
           # Beta (coefficients), std error, t values, p values
           local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
-          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), "***")
+          local_p_value = 2 * pt(abs(local_t_value), l_df, lower.tail = FALSE)
+          #p_val <<- 2 * pt(abs(t_val), df, lower.tail = FALSE)
+          newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), local_p_value, calculateMagicRainbowStars(local_p_value))
           rownames(newRow)[1] = rownames(l_var_beta)[i]
           table = rbind(table, newRow)
         }
 
-        colnames(table) = c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+        colnames(table) = c("Estimate", "Std. Error", "t value", "Pr(>|t|)", "")
         cPrint(table, TRUE)
         cat(paste("\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
       }
@@ -192,6 +194,23 @@ cPrint = function(x, stripoff = FALSE) {
   else {
     print(x)
   }
+}
+
+#' calculateMagicRainbowStars
+#'
+#' Returns different notations depending which value the p_value holds.
+#'
+#' @param p_value Obviously the p_value.
+#'
+#' @return Returns: Signif. codes:  0 "***" 0.001 "**" 0.01 "*" 0.05 "." 0.1 " " 1
+#' @export
+#'
+calculateMagicRainbowStars = function(p_value) {
+  if (p_value > 0.1) return(" ")
+  if (p_value > 0.05) return(".")
+  if (p_value > 0.01) return("*")
+  if (p_value > 0.001) return("**")
+  return("***")
 }
 
 linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)

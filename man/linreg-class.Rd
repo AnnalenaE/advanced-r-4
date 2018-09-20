@@ -14,31 +14,33 @@ This class does linear regression and provided different methods to display the 
 \section{Fields}{
 
 \describe{
-\item{\code{l_X}}{matrix.}
+\item{\code{l_X}}{matrix. Independent Values.}
 
-\item{\code{l_y}}{matrix.}
+\item{\code{l_y}}{matrix. Depenent Values.}
 
-\item{\code{l_beta}}{matrix.}
+\item{\code{l_beta}}{matrix. Regression Coeffcients.}
 
-\item{\code{l_y_fitted_values}}{matrix.}
+\item{\code{l_y_fitted_values}}{matrix. Fitted Values.}
 
-\item{\code{l_e}}{matrix.}
+\item{\code{l_e}}{matrix. Residuals.}
 
-\item{\code{l_n}}{numeric.}
+\item{\code{l_n}}{numeric. Number of Independant Values (Number of Observations).}
 
-\item{\code{l_p}}{numeric.}
+\item{\code{l_p}}{numeric. Number of Dependant Values (Number of Parameters in the Model).}
 
-\item{\code{l_df}}{numeric.}
+\item{\code{l_df}}{numeric. Degrees of freedom.}
 
-\item{\code{l_sigma_s}}{matrix.}
+\item{\code{l_sigma_s}}{matrix. Residual Variance.}
 
-\item{\code{l_var_beta}}{matrix.}
+\item{\code{l_var_beta}}{matrix. Variance of the Regression Coefficients.}
 
-\item{\code{l_formula}}{formula.}
+\item{\code{l_formula}}{formula. The Formula for the Linear Regression.}
 
-\item{\code{l_p_values}}{numeric.}
+\item{\code{l_p_values}}{numeric. P-Values.}
 
-\item{\code{l_data_set_name}}{character.}
+\item{\code{l_t_beta}}{matrix. T-Values for each Coefficient.}
+
+\item{\code{l_data_set_name}}{character. The Given Data.}
 }}
 
 
