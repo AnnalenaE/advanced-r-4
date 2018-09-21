@@ -10,7 +10,7 @@
 - ~~Documentation of the RC methods~~
 - ~~`Pr(>|t|)` in `summary()` is missing~~
 - `l_t_beta` is calculated in the constructor. Later on in the `summary()` function this matrix is not used, but instead `local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])` is used to calculate the values. When trying to use the calculated values, the values are wrong.
-- Write Vignette
+- Write Vignette & update this `README.md`
 - ~~Code documentation~~
 - ~~Add TravisCI, badge and try to import package (also fill this `README.md`)~~
 - (optional) QR-Decomposition
