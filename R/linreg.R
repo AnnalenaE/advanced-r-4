@@ -45,8 +45,8 @@ linreg <- setRefClass("linreg",
         "Constructor for creating the object. Arguments are the formlua and the corresponding data frame."
 
         # Input Validation
-        #if (!is.formula(formula)) stop("Error messgage")
-        #stopifnot(class(formula) == "formula", error = stop("formula is invalid."))
+        if (class(formula) != "formula") stop("Argument 'formula' must have the class formula.")
+        if (class(data) != "data.frame") stop("Argument 'data' must have the class data.frame")
 
         l_X <<- model.matrix(formula, data)
         l_y <<- as.matrix(data[all.vars(formula)[1]])
@@ -224,7 +224,7 @@ calculateMagicRainbowStars = function(p_value) {
   return("***")
 }
 
-#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 #linreg_mod$print()
-#linreg_mod$summary()
+linreg_mod$summary()
 #linreg_mod$plot()
