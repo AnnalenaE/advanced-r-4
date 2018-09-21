@@ -199,7 +199,6 @@ linreg <- setRefClass("linreg",
 #' @param stripoff If set to TRUE and \code{x} is a data.frame, the column names will be stripped off.
 #'
 #' @return Nothing.
-#' @export
 cPrint = function(x, stripoff = FALSE) {
   if (is.data.frame(x)) {
     print(x, row.names = stripoff)
@@ -216,7 +215,6 @@ cPrint = function(x, stripoff = FALSE) {
 #' @param p_value Obviously the p_value.
 #'
 #' @return Returns: Signif. codes:  0 "***" 0.001 "**" 0.01 "*" 0.05 "." 0.1 " " 1
-#' @export
 #'
 calculateMagicRainbowStars = function(p_value) {
   if (p_value > 0.1) return(" ")
