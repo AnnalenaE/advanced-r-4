@@ -1,81 +1,314 @@
 ---
-title: "Linear regression in R, the hard way"
+title: "A linear regression in R"
 author: "Maximilian Pfundstein, Annalena Erhard, Ruben Munoz"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{A linear regression in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  echo = TRUE
 )
 ```
-## Introduction
+```{r echo=FALSE, fig.show='hide'}
+#' Linreg Class
+#'
+#' This class does linear regression and provided different methods to display the data.
+#'
+#' @field l_X matrix. Independent Values.
+#' @field l_y matrix. Depenent Values.
+#' @field l_beta matrix. Regression Coeffcients.
+#' @field l_y_fitted_values matrix. Fitted Values.
+#' @field l_e matrix. Residuals.
+#' @field l_n numeric. Number of Independant Values (Number of Observations).
+#' @field l_p numeric. Number of Dependant Values (Number of Parameters in the Model).
+#' @field l_df numeric. Degrees of freedom.
+#' @field l_sigma_s matrix. Residual Variance.
+#' @field l_var_beta matrix. Variance of the Regression Coefficients.
+#' @field l_formula formula. The Formula for the Linear Regression.
+#' @field l_p_values numeric. P-Values.
+#' @field l_t_beta matrix. T-Values for each Coefficient.
+#' @field l_data_set_name character. The Given Data.
+#'
+#' @return Nothing.
+#' @export
+library(ggplot2)
+linreg <- setRefClass("linreg",
+                      fields = list(
+                        l_X = "matrix",
+                        l_y = "matrix",
+                        l_beta = "matrix",
+                        l_y_fitted_values = "matrix",
+                        l_e = "matrix",
+                        l_n = "numeric",
+                        l_p = "numeric",
+                        l_df = "numeric",
+                        l_sigma_s = "matrix",
+                        l_var_beta = "matrix",
+                        l_formula = "formula",
+                        l_p_values = "numeric",
+                        l_t_beta = "matrix",
+                        l_data_set_name = "character"),
+                      
+                      # Methods ----------------------------
+                      methods = list(
+                        
+                        # Constructor ----------------------
+                        initialize = function(formula, data) {
+                          "Constructor for creating the object. Arguments are the formlua and the corresponding data frame."
+                          
+                          # Input Validation
+                          if (class(formula) != "formula") stop("Argument 'formula' must have the class formula.")
+                          if (class(data) != "data.frame") stop("Argument 'data' must have the class data.frame")
+                          
+                          l_X <<- model.matrix(formula, data)
+                          l_y <<- as.matrix(data[all.vars(formula)[1]])
+                          
+                          # Calculate Regressions Coefficients
+                          ## Remember he told something about that solve doesn't always works, depends on the eigenvalues.
+                          l_beta <<- as.matrix((solve((t(l_X) %*% l_X)) %*% t(l_X) %*% l_y))
+                          
+                          # The Fitted Values
+                          l_y_fitted_values <<- l_X %*% l_beta
+                          
+                          # The Residuals
+                          l_e <<- l_y - l_y_fitted_values
+                          
+                          # Calculate The degrees of freedom
+                          # Where n is the number of observations and p is the number of parameters in the model.
+                          l_n <<- nrow(l_X)
+                          l_p <<- ncol(l_X)
+                          
+                          # Degrees of Freedom
+                          l_df <<- l_n - l_p
+                          
+                          # The Residual Variance
+                          l_sigma_s <<- (t(l_e) %*% l_e) / l_df
+                          
+                          # Variance of Regression Coefficients
+                          l_var_beta <<- as.numeric(l_sigma_s) * solve(t(as.matrix(l_X)) %*% as.matrix(l_X))
+                          
+                          # Calculate The t-values for each coefficient
+                          l_t_beta <<- l_beta / as.numeric(sqrt(var(l_beta))) ## These calculated values are wrong
+                          
+                          ## Saving
+                          l_formula <<- formula
+                          l_data_set_name <<- deparse(substitute(data))
+                          l_p_values <<- sapply(l_y, pt, q = ncol(l_X), df = l_df)
+                        },
+                        
+                        # print function ------------------
+                        print = function() {
+                          "Prints some basic information like the coefficients."
+                          
+                          # Formula
+                          cat(paste("linreg(formula = ", format(l_formula), ", data = ", l_data_set_name, ")\n\n", sep = ""))
+                          
+                          # Coefficients
+                          cat(paste("Coefficients:\n\n"))
+                          
+                          # Values
+                          table = setNames(data.frame(matrix(ncol = length(l_beta), nrow = 0)), rownames(l_beta))
+                          for (i in 1:length(l_beta)) {
+                            table[1,i] = round(l_beta[i], 3)
+                          }
+                          cPrint(table)
+                        },
+                        
+                        # plot function -------------------
+                        plot  = function() {
+                          "Plots the Fitted Values one time with the Residuals and one time with standardized Residuals"
+                          
+                          #resfit = as.data.frame(cbind(l_e, l_y))
+                          #names(resfit) = c("residuals", "fitted")
+                          
+                          plot1 = ggplot(data.frame(l_e, l_y_fitted_values), aes(y = l_e, x = l_y_fitted_values))+
+                            geom_point()+
+                            xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
+                            ylab("Residuals")+
+                            stat_summary(aes(y = l_e, x = l_y_fitted_values ,group=1),
+                                         fun.y=median, colour="red", geom="line",group=1)
+                          # geom_smooth(aes(y = l_e, x = l_y_fitted_values),
+                          #             formula = y~x,
+                          #             se = FALSE,
+                          #             span = 1,
+                          #             color = "red",
+                          #             method = "auto")
+                          
+                          cPrint(plot1)
+                          
+                          stdresfit = as.data.frame(cbind(sqrt(abs((l_e - mean(l_e)))), l_y_fitted_values))
+                          names(stdresfit) = c("stdResiduals", "fitted")
+                          
+                          plot2 = ggplot(stdresfit, aes(x = fitted, y = stdResiduals))+
+                            geom_point()+
+                            xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
+                            ylab(expression(sqrt("|Standardized residuals|")))+
+                            stat_summary(aes(y = stdResiduals, x = fitted ,group=1),
+                                         fun.y= mean, colour="red", geom="line",group=1)
+                          
+                          
+                          
+                          # geom_smooth(aes(y = stdResiduals, x = fitted),
+                          #             formula = y~x,
+                          #             se = FALSE,
+                          #             span = 1,
+                          #             color = "red",
+                          #             method = "auto")
+                          cPrint(plot2)
+                        },
+                        
+                        # resid function -------------------
+                        resid     = function() {
+                          "Returns the Residuals"
+                          return(l_e)
+                        },
+                        
+                        # pred function --------------------
+                        pred      = function() {
+                          "Returns the Fitted Values"
+                          return(l_y_fitted_values)
+                        },
+                        
+                        # ceof function --------------------
+                        coef      = function() {
+                          "Returns the Coefficients"
+                          return(l_beta)
+                        },
+                        
+                        # summary function -----------------
+                        summary   = function() {
+                          "Prints a summary of the Linear Regression"
+                          
+                          cat("\nCall:\n")
+                          cat(paste("linreg(formula = ", (format(l_formula)), ", data = ", l_data_set_name, ")\n\n", sep = ""))
+                          
+                          # Coefficients
+                          cat("Coefficients:\n\n")
+                          
+                          # Values
+                          table = data.frame(matrix(ncol = 5, nrow = 0))
+                          for (i in 1:length(l_beta)) {
+                            # Beta (coefficients), std error, t values, p values
+                            local_t_value = l_beta[i]/sqrt(l_var_beta[i, i])
+                            local_p_value = 2 * pt(abs(local_t_value), l_df, lower.tail = FALSE)
+                            newRow = data.frame(round(l_beta[i], 2), round(sqrt(l_var_beta[i, i]), 2), round(local_t_value, 2), formatC(local_p_value, format = "e", digits = 2), calculateMagicRainbowStars(local_p_value))
+                            rownames(newRow)[1] = rownames(l_var_beta)[i]
+                            table = rbind(table, newRow)
+                          }
+                          
+                          colnames(table) = c("Estimate", "Std. Error", "t value", "Pr(>|t|)", "")
+                          cPrint(table, TRUE)
+                          cat(paste("\nResidual standard error:", sqrt(l_sigma_s), "on", l_df, "degrees of freedom"))
+                        }
+                      )
+)
 
-This package uses a linear regression model. It uses linear algebra to give a linear regresion model functionality when given a formula and a dataframe to work with.
+#' cPrint (custom print)
+#'
+#' Prints the value in \code{x}. This class can be used to print inside RC classes, which is not possible otherwise.
+#'
+#' @param x Any object that normally can be printed.
+#' @param stripoff If set to TRUE and \code{x} is a data.frame, the column names will be stripped off.
+#'
+#' @return Nothing.
+cPrint = function(x, stripoff = FALSE) {
+  if (is.data.frame(x)) {
+    print(x, row.names = stripoff)
+  }
+  else {
+    print(x)
+  }
+}
 
-## Usage
+#' calculateMagicRainbowStars
+#'
+#' Returns different notations depending which value the p_value holds.
+#'
+#' @param p_value Obviously the p_value.
+#'
+#' @return Returns: Signif. codes:  0 "***" 0.001 "**" 0.01 "*" 0.05 "." 0.1 " " 1
+#'
+calculateMagicRainbowStars = function(p_value) {
+  if (p_value > 0.1) return(" ")
+  if (p_value > 0.05) return(".")
+  if (p_value > 0.01) return("*")
+  if (p_value > 0.001) return("**")
+  return("***")
+}
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-### Setup
-[place holder]
+#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+#linreg_mod$print()
+#linreg_mod$summary()
+#linreg_mod$plot()
 
-- Methods
+```
+## Introduction {.tabset}
 
-- print()
+This package uses a linear regression model. It uses linear algebra to give a linear regresion model functionality when given a formula and a dataframe to work with. for the following examples the dataset `iris` will be used.
 
-- plot()
+## Usage Methods {.tabset .tabset-fade .tabset-pills}
 
-- resid()
+```{r echo=TRUE, fig.show='hold'}
+linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+```
 
-- pred()
+### print() 
 
-- coef()
+A method call  that gives back the formula along with the coeficients.
+```{r, fig.show='hold'}
+linreg_mod$print()
+```
 
-- summary()
+### plot() 
 
+This one method call returns two plots containning the residuals in relation to the fitted values. the first one gives the Residuals vs Fitted, while the seccond one gives the Scale - Location.
+```{r}
+linreg_mod$plot()
+```
 
+### resid()
+A method to call on the residuals
 
+$$\hat{e} = y - \hat{y} = y - X\hat{\beta}$$
+```{r, fig.show='hold', fig.align='center'}
+head(linreg_mod$resid())
+```
 
+### pred() 
+A method call to get the predicted values $\hat{y}$.
+```{r, fig.show='hold'}
+head(linreg_mod$pred())
+```
 
-----
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+### coef() 
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
+A method call to get the coefficients as a named vector.
 
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
+$$\hat{\beta} = (X^TX)^{-1}X^Ty$$
 
 ```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+linreg_mod$coef()
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+### summary()
+This returns a printout presenting the coefficients with their standard error, t-value and p-value as well as the estimate of $\hat{\sigma}$ along with the degrees of freedom in the model.
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r, fig.show='hold'}
+linreg_mod$summary()
 ```
 
-Also a quote using `>`:
+## References 
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+[Matrix decompositions for regression analysis](https://www.stat.wisc.edu/courses/st849-bates/lectures/Orthogonal.pdf)
+
+ [Some	Notes	on	Least	Squares, QR-factorization, SVD and	Fitting](http://staff.www.ltu.se/~jove/courses/c0002m/least_squares.pdf)
