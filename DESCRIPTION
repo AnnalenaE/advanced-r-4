@@ -11,7 +11,9 @@ Depends: R (>= 3.3.0)
 LazyData: true
 Suggests: testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat,
+    covr
 Imports: ggplot2
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr
