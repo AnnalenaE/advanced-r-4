@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
+
 vignette: >
   %\VignetteIndexEntry{A linear regression in R}
   %\VignetteEngine{knitr::rmarkdown}

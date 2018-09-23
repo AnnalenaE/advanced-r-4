@@ -223,8 +223,3 @@ calculateMagicRainbowStars = function(p_value) {
   if (p_value > 0.001) return("**")
   return("***")
 }
-
-linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-#linreg_mod$print()
-linreg_mod$summary()
-#linreg_mod$plot()
