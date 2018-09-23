@@ -110,11 +110,11 @@ linreg <- setRefClass("linreg",
                           #names(resfit) = c("residuals", "fitted")
 
                           plot1 = ggplot(data.frame(l_e, l_y_fitted_values), aes(y = l_e, x = l_y_fitted_values))+
-                            geom_point()+
+                            geom_point(color = "white")+
                             xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
                             ylab("Residuals")+
                             stat_summary(aes(y = l_e, x = l_y_fitted_values ,group=1),
-                                         fun.y=median, colour="red", geom="line",group=1)
+                                         fun.y=median, colour="#54d8e0", geom="line",group=1) + liu_theme()
                           # geom_smooth(aes(y = l_e, x = l_y_fitted_values),
                           #             formula = y~x,
                           #             se = FALSE,
@@ -128,11 +128,11 @@ linreg <- setRefClass("linreg",
                           names(stdresfit) = c("stdResiduals", "fitted")
 
                           plot2 = ggplot(stdresfit, aes(x = fitted, y = stdResiduals))+
-                            geom_point()+
+                            geom_point(color = "white")+
                             xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
                             ylab(expression(sqrt("|Standardized residuals|")))+
                             stat_summary(aes(y = stdResiduals, x = fitted ,group=1),
-                                         fun.y= mean, colour="red", geom="line",group=1)
+                                         fun.y= mean, colour="#54d8e0", geom="line",group=1) + liu_theme()
 
 
 
@@ -224,7 +224,60 @@ calculateMagicRainbowStars = function(p_value) {
   return("***")
 }
 
-linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+#' Liu Theme
+#'
+#' @param base_size The base size of the font.
+#' @param base_family The base family of the font.
+#'
+#' @return The Liu Theme. Add this to our plot.
+#' @export
+#'
+liu_theme = function(base_size = 11, base_family = "") {
+  {
+    half_line <- base_size/2
+    theme(line = element_line(colour = "black", size = 0.5, linetype = 1,
+          lineend = "butt"), rect = element_rect(fill = "#232323",
+          colour = "black", size = 0.5, linetype = 1), text = element_text(family = base_family,
+          face = "plain", colour = "#54d8e0", size = base_size, lineheight = 0.9,
+          hjust = 0.5, vjust = 0.5, angle = 0, margin = margin(), debug = FALSE),
+          axis.line = element_line(),
+          axis.line.x = element_blank(),
+          axis.line.y = element_blank(),
+          axis.text = element_text(size = rel(0.8), colour = "#54d8e0"),
+          axis.text.x = element_text(margin = margin(t = 0.8 * half_line/2), vjust = 1), axis.text.y = element_text(margin = margin(r = 0.8 * half_line/2), hjust = 1),
+          axis.ticks = element_line(colour = "#ffffff"),
+          axis.ticks.length = unit(half_line/2, "pt"),
+          axis.title.x = element_text(margin = margin(t = 0.8 * half_line, b = 0.8 * half_line/2)),
+          axis.title.y = element_text(angle = 90, margin = margin(r = 0.8 * half_line, l = 0.8 * half_line/2)),
+          legend.background = element_rect(colour = "#ffffff"), legend.key = element_rect(fill = "#ffffff", colour = "white"), legend.key.size = unit(1.2, "lines"),
+          legend.key.height = NULL,
+          legend.key.width = NULL,
+          legend.text = element_text(size = rel(0.8)),
+          legend.text.align = NULL,
+          legend.title = element_text(hjust = 0),
+          legend.title.align = NULL,
+          legend.position = "right",
+          legend.direction = NULL,
+          legend.justification = "center",
+          legend.box = NULL,
+          panel.background = element_rect(fill = "#3e4d4f", colour = NA),
+          panel.border = element_blank(),
+          panel.grid.major = element_line(colour = "#dddddd"),
+          panel.grid.minor = element_line(colour = "#cccccc", size = 0.25),
+          panel.margin.y = NULL, panel.ontop = FALSE,
+          strip.background = element_rect(fill = "#ffffff", colour = NA),
+          strip.text = element_text(colour = "#ffffff", size = rel(0.8)),
+          strip.text.x = element_text(margin = margin(t = half_line,b = half_line)),
+          strip.text.y = element_text(angle = -90, margin = margin(l = half_line, r = half_line)),
+          strip.switch.pad.grid = unit(0.1, "cm"), strip.switch.pad.wrap = unit(0.1, "cm"),
+          plot.background = element_rect(colour = "white"),
+          plot.title = element_text(size = rel(1.2),
+          margin = margin(b = half_line * 1.2)),
+          plot.margin = margin(half_line, half_line, half_line, half_line),complete = TRUE)
+  }
+}
+
+#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 #linreg_mod$print()
-linreg_mod$summary()
+#linreg_mod$summary()
 #linreg_mod$plot()
