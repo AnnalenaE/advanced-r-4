@@ -6,6 +6,9 @@ knitr::opts_chunk$set(
 )
 
 ## ----echo=FALSE, fig.show='hide'-----------------------------------------
+library(ggplot2)
+
+## ----echo=FALSE, fig.show='hide'-----------------------------------------
 #' Linreg Class
 #'
 #' This class does linear regression and provided different methods to display the data.
@@ -27,7 +30,7 @@ knitr::opts_chunk$set(
 #'
 #' @return Nothing.
 #' @export
-library(ggplot2)
+
 linreg <- setRefClass("linreg",
                       fields = list(
                         l_X = "matrix",

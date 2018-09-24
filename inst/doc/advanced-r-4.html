@@ -88,19 +88,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul>
 </div>
 
-<pre><code>#&gt; Found more than one class &quot;linreg&quot; in cache; using the first, from namespace 'linear.regression'
-#&gt; Also defined by '.GlobalEnv'</code></pre>
 <div id="introduction" class="section level2 tabset">
 <h2>Introduction</h2>
 <p>This package uses a linear regression model. It uses linear algebra to give a linear regresion model functionality when given a formula and a dataframe to work with. for the following examples the dataset <code>iris</code> will be used.</p>
 </div>
 <div id="usage-methods" class="section level2 tabset tabset-fade tabset-pills">
 <h2>Usage Methods</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">linreg_mod =<span class="st"> </span>linreg<span class="op">$</span><span class="kw">new</span>(Petal.Length<span class="op">~</span>Sepal.Width<span class="op">+</span>Sepal.Length, <span class="dt">data=</span>iris)
-<span class="co">#&gt; Found more than one class &quot;linreg&quot; in cache; using the first, from namespace 'linear.regression'</span>
-<span class="co">#&gt; Also defined by '.GlobalEnv'</span>
-<span class="co">#&gt; Found more than one class &quot;linreg&quot; in cache; using the first, from namespace 'linear.regression'</span>
-<span class="co">#&gt; Also defined by '.GlobalEnv'</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">linreg_mod =<span class="st"> </span>linreg<span class="op">$</span><span class="kw">new</span>(Petal.Length<span class="op">~</span>Sepal.Width<span class="op">+</span>Sepal.Length, <span class="dt">data=</span>iris)</code></pre></div>
 <div id="print" class="section level3">
 <h3>print()</h3>
 <p>A method call that gives back the formula along with the coeficients.</p>
