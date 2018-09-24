@@ -18,8 +18,8 @@
 #' @field l_data_set_name character. The Given Data.
 #'
 #' @return Nothing.
-#' @export
-
+#' @export linreg
+#' @exportClass linreg
 linreg <- setRefClass("linreg",
                       fields = list(
                         l_X = "matrix",
