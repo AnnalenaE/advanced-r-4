@@ -276,9 +276,3 @@ liu_theme = function(base_size = 11, base_family = "") {
           plot.margin = margin(half_line, half_line, half_line, half_line),complete = TRUE)
   }
 }
-
-#library(ggplot2)
-#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
-#linreg_mod$print()
-#linreg_mod$summary()
-#linreg_mod$plot()
