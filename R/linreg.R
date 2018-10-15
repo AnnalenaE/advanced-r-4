@@ -106,6 +106,7 @@ linreg <- setRefClass("linreg",
                         plot  = function() {
                           "Plots the Fitted Values one time with the Residuals and one time with standardized Residuals"
 
+                          library(ggplot2)
                           #resfit = as.data.frame(cbind(l_e, l_y))
                           #names(resfit) = c("residuals", "fitted")
 
@@ -127,7 +128,7 @@ linreg <- setRefClass("linreg",
                           stdresfit = as.data.frame(cbind(sqrt(abs((l_e - mean(l_e)))), l_y_fitted_values))
                           names(stdresfit) = c("stdResiduals", "fitted")
 
-                          plot2 = ggplot(stdresfit, aes(x = fitted, y = stdResiduals))+
+                          plot2 = ggplot2::ggplot(stdresfit, aes(x = fitted, y = stdResiduals))+
                             geom_point(color = "white")+
                             xlab(paste("Fitted Values\n", "lm(", format(l_formula), ")", ""))+
                             ylab(expression(sqrt("|Standardized residuals|")))+
@@ -276,3 +277,9 @@ liu_theme = function(base_size = 11, base_family = "") {
           plot.margin = margin(half_line, half_line, half_line, half_line),complete = TRUE)
   }
 }
+
+#library(ggplot2)
+#linreg_mod = linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+#linreg_mod$print()
+#linreg_mod$summary()
+#linreg_mod$plot()
